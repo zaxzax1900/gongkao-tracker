@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#f3f7f1">
+<meta name="theme-color" content="#F5F4F0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="公考学习计时">
@@ -12,19 +12,21 @@
 </script>
 <style>
 :root {
-  --bg: #f3f7f1;
-  --card: #ffffff;
-  --primary: #6d9e6a;
-  --primary-dark: #5a8557;
-  --primary-light: #e8f3e6;
-  --shenlun: #5b8cb8;
-  --shenlun-light: #e6f0f8;
-  --text: #3b4638;
-  --text-secondary: #8a9a85;
-  --border: #e3e9df;
-  --danger: #d4756b;
-  --warning: #e8a850;
-  --shadow: 0 2px 12px rgba(59,70,56,0.08);
+  --bg: #F5F4F0;
+  --card: #FEFDFB;
+  --primary: #A3BFA8;
+  --primary-dark: #8AAA8F;
+  --primary-light: #E8F0E9;
+  --shenlun: #A8BFD8;
+  --shenlun-light: #EBF1F7;
+  --taoti: #C0B0D0;
+  --taoti-light: #F2EDF5;
+  --text: #4A4543;
+  --text-secondary: #9A9590;
+  --border: #E8E5E0;
+  --danger: #D4A5A0;
+  --warning: #DFC8A8;
+  --shadow: 0 2px 12px rgba(0,0,0,0.05);
   --radius: 14px;
   --radius-sm: 10px;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -41,13 +43,12 @@ body{
   -webkit-user-select:none;
   user-select:none;
 }
-/* Active Timer Bar */
 #active-timer-bar{
   display:none;
   align-items:center;
   gap:10px;
   padding:12px 16px;
-  background:linear-gradient(135deg,#e8a850,#e8973a);
+  background:linear-gradient(135deg,#DFC8A8,#D9B892);
   color:#fff;
   font-weight:600;
   font-size:15px;
@@ -67,21 +68,18 @@ body{
 }
 #active-timer-bar .timer-stop:active{background:rgba(255,255,255,0.4);}
 
-/* Main Content */
 #main-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
 
-/* Views */
 .view{display:none;padding:16px 16px 100px;}
 .view.active{display:block;}
 
-/* Timer View */
 .timer-header{text-align:center;padding:8px 0 18px;}
 .timer-header h1{font-size:22px;font-weight:700;color:var(--text);}
 .timer-header .subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px;}
 
-.module-section{margin-bottom:18px;}
+.module-section{margin-bottom:16px;}
 .module-label{
-  font-size:13px;font-weight:600;color:var(--text-secondary);
+  font-size:12px;font-weight:600;color:var(--text-secondary);
   letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;
 }
 .module-label::after{content:'';flex:1;height:1px;background:var(--border);}
@@ -92,7 +90,7 @@ body{
 .subject-card{
   background:var(--card);
   border-radius:var(--radius);
-  padding:16px 10px;
+  padding:14px 8px;
   text-align:center;
   box-shadow:var(--shadow);
   cursor:pointer;
@@ -100,25 +98,24 @@ body{
   border:1.5px solid transparent;
   position:relative;
 }
-.subject-card:active{transform:scale(0.96);box-shadow:0 1px 4px rgba(59,70,56,0.1);}
-.subject-card .card-icon{font-size:32px;display:block;margin-bottom:6px;}
-.subject-card .card-name{font-size:13px;font-weight:600;color:var(--text);}
+.subject-card:active{transform:scale(0.96);box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.subject-card .card-icon{font-size:28px;display:block;margin-bottom:4px;}
+.subject-card .card-name{font-size:12px;font-weight:600;color:var(--text);}
 .subject-card .card-last{
-  font-size:11px;color:var(--text-secondary);margin-top:4px;
+  font-size:10px;color:var(--text-secondary);margin-top:3px;
 }
 .subject-card.running{
   border-color:var(--warning);
-  background:linear-gradient(135deg,#fff9f0,#fff3e0);
+  background:linear-gradient(135deg,#FDF8F2,#FEF5EC);
 }
 
-/* Stats View */
 .stats-header{text-align:center;padding:8px 0 12px;}
 .stats-header h2{font-size:20px;font-weight:700;}
 
 .period-selector{
-  display:flex;gap:8px;margin-bottom:16px;
+  display:flex;gap:8px;margin-bottom:14px;
   background:var(--card);border-radius:var(--radius-sm);
-  padding:4px;box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  padding:4px;box-shadow:var(--shadow);
 }
 .period-btn{
   flex:1;padding:8px 0;border:none;background:none;
@@ -130,20 +127,19 @@ body{
 
 .chart-section{
   background:var(--card);border-radius:var(--radius);
-  padding:16px;margin-bottom:14px;box-shadow:var(--shadow);
+  padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);
 }
-.chart-section h3{font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;}
-.chart-wrap{position:relative;width:100%;max-height:260px;}
+.chart-section h3{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
+.chart-wrap{position:relative;width:85%;max-width:300px;margin:0 auto;}
 .chart-wrap canvas{width:100%!important;}
-.chart-wrap.trend{max-height:240px;}
+.chart-wrap.trend{width:100%;max-width:none;}
 
 .stats-empty{text-align:center;padding:40px 20px;color:var(--text-secondary);}
 .stats-empty .empty-icon{font-size:48px;display:block;margin-bottom:12px;}
 
-/* Records View */
 .records-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:8px 0 14px;
+  padding:8px 0 14px;flex-wrap:wrap;gap:8px;
 }
 .records-header h2{font-size:20px;font-weight:700;}
 
@@ -155,14 +151,14 @@ body{
 }
 .btn-primary{background:var(--primary);color:#fff;}
 .btn-primary:active{background:var(--primary-dark);}
-.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text);}
+.btn-outline{background:var(--card);border:1.5px solid var(--border);color:var(--text);}
 .btn-outline:active{background:var(--primary-light);}
 .btn-sm{padding:6px 12px;font-size:12px;border-radius:16px;}
 .btn-danger{background:var(--danger);color:#fff;}
 
-.records-actions{display:flex;gap:8px;}
+.records-actions{display:flex;gap:6px;}
 
-.date-group{margin-bottom:16px;}
+.date-group{margin-bottom:14px;}
 .date-label{
   font-size:12px;font-weight:600;color:var(--text-secondary);
   padding:6px 0;letter-spacing:0.5px;position:sticky;top:0;
@@ -174,7 +170,7 @@ body{
   border-radius:var(--radius-sm);margin-bottom:6px;
   box-shadow:0 1px 3px rgba(0,0,0,0.04);
 }
-.record-item .rec-icon{font-size:24px;}
+.record-item .rec-icon{font-size:22px;}
 .record-item .rec-info{flex:1;min-width:0;}
 .record-item .rec-subject{font-size:14px;font-weight:600;}
 .record-item .rec-meta{font-size:11px;color:var(--text-secondary);}
@@ -189,18 +185,18 @@ body{
 .records-empty .empty-icon{font-size:48px;display:block;margin-bottom:12px;}
 
 .summary-bar{
-  display:flex;gap:10px;margin-bottom:14px;
+  display:flex;gap:8px;margin-bottom:14px;
 }
 .summary-item{
   flex:1;background:var(--card);border-radius:var(--radius-sm);
-  padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  padding:10px 6px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);
 }
-.summary-item .sum-val{font-size:22px;font-weight:700;}
-.summary-item .sum-label{font-size:11px;color:var(--text-secondary);margin-top:2px;}
-.summary-item.xc .sum-val{color:var(--primary);}
+.summary-item .sum-val{font-size:18px;font-weight:700;}
+.summary-item .sum-label{font-size:10px;color:var(--text-secondary);margin-top:2px;}
+.summary-item.xc .sum-val{color:var(--primary-dark);}
 .summary-item.sl .sum-val{color:var(--shenlun);}
+.summary-item.tt .sum-val{color:var(--taoti);}
 
-/* Bottom Nav */
 #bottom-nav{
   display:flex;background:var(--card);
   border-top:1px solid var(--border);
@@ -214,35 +210,34 @@ body{
   cursor:pointer;font-family:var(--font);transition:color 0.2s;
 }
 .nav-item .nav-icon{font-size:20px;}
-.nav-item.active{color:var(--primary);font-weight:600;}
+.nav-item.active{color:var(--primary-dark);font-weight:600;}
 
-/* Modals */
 .modal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);
   z-index:50;align-items:flex-end;justify-content:center;
 }
 .modal-overlay.show{display:flex;}
 .modal-sheet{
   background:var(--bg);width:100%;max-width:500px;
   border-radius:18px 18px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0));
-  animation:slideUp 0.25s ease-out;
+  animation:slideUp 0.25s ease-out;max-height:90vh;overflow-y:auto;
 }
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 
-.modal-sheet h3{font-size:17px;font-weight:700;margin-bottom:16px;text-align:center;}
-.modal-sheet .pick-subject{text-align:center;font-size:15px;color:var(--text-secondary);margin-bottom:14px;}
+.modal-sheet h3{font-size:17px;font-weight:700;margin-bottom:14px;text-align:center;}
+.modal-sheet .pick-subject{text-align:center;font-size:14px;color:var(--text-secondary);margin-bottom:12px;}
 
-.duration-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.duration-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
 .dur-btn{
   padding:12px 0;border:1.5px solid var(--border);
   background:var(--card);border-radius:var(--radius-sm);
   font-size:14px;font-weight:600;cursor:pointer;
   font-family:var(--font);transition:all 0.15s;
 }
-.dur-btn:active,.dur-btn.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+.dur-btn:active,.dur-btn.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary-dark);}
 
 .custom-dur{
-  display:flex;align-items:center;gap:8px;margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
   justify-content:center;
 }
 .custom-dur input{
@@ -252,16 +247,18 @@ body{
 }
 .custom-dur input:focus{outline:none;border-color:var(--primary);}
 
-.form-group{margin-bottom:12px;}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
+.form-group{margin-bottom:10px;}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:3px;}
 .form-group select,.form-group input{
   width:100%;padding:10px 12px;border:1.5px solid var(--border);
   border-radius:var(--radius-sm);font-size:14px;font-family:var(--font);
-  background:var(--card);
+  background:var(--card);color:var(--text);
 }
 .form-group select:focus,.form-group input:focus{outline:none;border-color:var(--primary);}
 .form-row{display:flex;gap:10px;}
 .form-row .form-group{flex:1;}
+
+#custom-subject-wrap{display:none;}
 
 .btn-full{
   width:100%;padding:12px;text-align:center;justify-content:center;
@@ -269,7 +266,6 @@ body{
 }
 .btn-full:active{transform:scale(0.98);}
 
-/* Export modal */
 .export-options{display:flex;flex-direction:column;gap:10px;}
 .export-btn{
   display:flex;align-items:center;gap:10px;
@@ -281,17 +277,15 @@ body{
 .export-btn:active{background:var(--primary-light);border-color:var(--primary);}
 .export-btn .exp-icon{font-size:22px;}
 
-/* Toast */
 .toast{
   position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  background:#3b4638;color:#fff;padding:10px 22px;
+  background:var(--text);color:#fff;padding:10px 22px;
   border-radius:20px;font-size:13px;font-weight:600;
   z-index:100;opacity:0;transition:opacity 0.3s;
   pointer-events:none;
 }
 .toast.show{opacity:1;}
 
-/* Responsive */
 @media(min-width:420px){
   .subject-grid{grid-template-columns:repeat(3,1fr);}
   .subject-grid.col2{grid-template-columns:repeat(3,1fr);}
@@ -315,7 +309,7 @@ body{
   <div id="view-timer" class="view active">
     <div class="timer-header">
       <h1>📚 公考学习计时</h1>
-      <div class="subtitle">点击科目卡片开始计时，专注每一分钟</div>
+      <div class="subtitle">点击科目卡片开始计时 · 专注每一分钟</div>
     </div>
     <div class="module-section">
       <div class="module-label">📐 行测</div>
@@ -324,6 +318,10 @@ body{
     <div class="module-section">
       <div class="module-label">📝 申论</div>
       <div class="subject-grid col2" id="grid-shenlun"></div>
+    </div>
+    <div class="module-section">
+      <div class="module-label">📋 套题</div>
+      <div class="subject-grid" id="grid-taoti"></div>
     </div>
   </div>
 
@@ -341,7 +339,7 @@ body{
       <div class="chart-wrap"><canvas id="chart-subject"></canvas></div>
     </div>
     <div class="chart-section">
-      <h3>行测 vs 申论</h3>
+      <h3>模块占比</h3>
       <div class="chart-wrap"><canvas id="chart-module"></canvas></div>
     </div>
     <div class="chart-section">
@@ -410,11 +408,16 @@ body{
       <select id="man-module" onchange="updateManualSubjects()">
         <option value="行测">行测</option>
         <option value="申论">申论</option>
+        <option value="套题">套题</option>
       </select>
     </div>
     <div class="form-group">
       <label>科目</label>
-      <select id="man-subject"></select>
+      <select id="man-subject" onchange="onSubjectChange()"></select>
+    </div>
+    <div class="form-group" id="custom-subject-wrap">
+      <label>自定义科目名</label>
+      <input type="text" id="man-custom-subject" placeholder="输入科目名称" maxlength="20">
     </div>
     <div class="form-group">
       <label>日期</label>
@@ -458,25 +461,52 @@ body{
 // ========== DATA MODEL ==========
 const MODULES = {
   '行测': ['政治理论','言语理解','判断推理','数量关系','资料分析'],
-  '申论': ['小题','大作文']
+  '申论': ['小题','大作文'],
+  '套题': ['行测套卷','申论套卷','全真模拟']
 };
-const SUBJECT_ICONS = {
-  '政治理论':'🏛️','言语理解':'💬','判断推理':'🧩','数量关系':'🔢','资料分析':'📊','小题':'📝','大作文':'✍️'
+const DEFAULT_ICONS = {
+  '政治理论':'🏛️','言语理解':'💬','判断推理':'🧩','数量关系':'🔢','资料分析':'📊',
+  '小题':'📝','大作文':'✍️',
+  '行测套卷':'📄','申论套卷':'📃','全真模拟':'📋'
 };
-const SUBJECT_COLORS = [
-  '#6d9e6a','#7eab7b','#90b98c','#a2c69e','#b4d3b0','#6b8fbb','#82a6cf'
+const DEFAULT_COLORS = {
+  // Macaron greens — 行测 (low saturation, spread across lightness)
+  '政治理论':'#8FB89D',
+  '言语理解':'#A9C9B4',
+  '判断推理':'#BCD7C5',
+  '数量关系':'#9CC0A9',
+  '资料分析':'#C5DDCE',
+  // Macaron blues — 申论
+  '小题':'#98B5D0',
+  '大作文':'#B8CFE3',
+  // Macaron lavenders — 套题
+  '行测套卷':'#B5A8C8',
+  '申论套卷':'#C9BFD8',
+  '全真模拟':'#BFB4D0'
+};
+// Extra palette for custom subjects
+const FALLBACK_COLORS = [
+  '#C4BDA8','#B8C4B0','#B0C0C4','#C0B8C8','#C8C0B4',
+  '#A8C0B8','#B4C0B8','#BCB8C0','#C0BCB0','#B8C4BC'
 ];
-const SUBJECT_COLOR_MAP = {};
-['政治理论','言语理解','判断推理','数量关系','资料分析','小题','大作文'].forEach((s,i)=>{
-  SUBJECT_COLOR_MAP[s]=SUBJECT_COLORS[i];
-});
+
+function getIcon(subject){ return DEFAULT_ICONS[subject]||'📖'; }
+function getColor(subject){
+  if(DEFAULT_COLORS[subject])return DEFAULT_COLORS[subject];
+  // Hash the subject name to pick a fallback color
+  let hash=0;for(let i=0;i<subject.length;i++)hash=subject.charCodeAt(i)+((hash<<5)-hash);
+  return FALLBACK_COLORS[Math.abs(hash)%FALLBACK_COLORS.length];
+}
+
+// Module display colors
+const MODULE_COLORS = { '行测':'#A3BFA8', '申论':'#A8BFD8', '套题':'#C0B0D0' };
 
 const STORAGE_KEY = 'gongkao_records';
 const SETTINGS_KEY = 'gongkao_settings';
 const TIMER_KEY = 'gongkao_active_timer';
 
 let records = [];
-let activeTimer = null; // {subject, module, startTime, duration, endTime, intervalId}
+let activeTimer = null;
 let charts = {};
 let currentPeriod = '7';
 
@@ -488,14 +518,11 @@ function saveRecords(){localStorage.setItem(STORAGE_KEY,JSON.stringify(records))
 function loadSettings(){
   try{return JSON.parse(localStorage.getItem(SETTINGS_KEY))||{defaultDuration:45};}catch(e){return{defaultDuration:45};}
 }
-function saveSettings(s){localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));}
 function loadActiveTimer(){
   try{
     const t=JSON.parse(localStorage.getItem(TIMER_KEY));
     if(!t)return null;
-    const now=Date.now();
-    if(now>=t.endTime){
-      // Timer should have completed - auto save record
+    if(Date.now()>=t.endTime){
       addRecordSilent(t.subject,t.module,new Date(t.startTime),t.duration);
       localStorage.removeItem(TIMER_KEY);
       return null;
@@ -518,7 +545,7 @@ function addRecordSilent(subject,module,startDate,durationMinutes){
   saveRecords();
 }
 
-// ========== TOAST ==========
+// ========== TOAST / MODALS ==========
 let toastTimer;
 function showToast(msg){
   const el=document.getElementById('toast');
@@ -526,10 +553,9 @@ function showToast(msg){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>el.classList.remove('show'),1800);
 }
-
-// ========== MODALS ==========
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
+
 let pendingTimerSubject=null,pendingTimerModule=null,selectedDuration=null;
 
 function openTimerSetup(subject,module){
@@ -537,8 +563,7 @@ function openTimerSetup(subject,module){
   pendingTimerModule=module;
   selectedDuration=null;
   document.getElementById('timer-setup-subject').innerHTML=
-    `${SUBJECT_ICONS[subject]} ${subject} <span style="font-size:12px;color:var(--text-secondary);">— ${module}</span>`;
-  // Reset preset buttons
+    `${getIcon(subject)} ${subject} <span style="font-size:12px;color:var(--text-secondary);">— ${module}</span>`;
   document.querySelectorAll('#duration-presets .dur-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('custom-duration').value='';
   openModal('modal-timer-setup');
@@ -551,6 +576,7 @@ function openManualModal(){
   document.getElementById('man-start').value=
     `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   document.getElementById('man-duration').value='45';
+  document.getElementById('custom-subject-wrap').style.display='none';
   openModal('modal-manual');
 }
 
@@ -559,7 +585,15 @@ function openExportModal(){openModal('modal-export');}
 function updateManualSubjects(){
   const mod=document.getElementById('man-module').value;
   const sel=document.getElementById('man-subject');
-  sel.innerHTML=MODULES[mod].map(s=>`<option value="${s}">${SUBJECT_ICONS[s]} ${s}</option>`).join('');
+  sel.innerHTML=MODULES[mod].map(s=>
+    `<option value="${s}">${DEFAULT_ICONS[s]||'📖'} ${s}</option>`
+  ).join('')+'<option value="__custom__">➕ 自定义科目…</option>';
+  document.getElementById('custom-subject-wrap').style.display='none';
+}
+
+function onSubjectChange(){
+  const wrap=document.getElementById('custom-subject-wrap');
+  wrap.style.display=document.getElementById('man-subject').value==='__custom__'?'block':'none';
 }
 
 // ========== TIMER ==========
@@ -575,11 +609,7 @@ function confirmStartTimer(){
 }
 
 function startTimer(subject,module,durationMinutes){
-  // Stop existing timer if any
-  if(activeTimer){
-    clearInterval(activeTimer.intervalId);
-    showToast('已停止上一个计时');
-  }
+  if(activeTimer){clearInterval(activeTimer.intervalId);showToast('已停止上一个计时');}
   const now=Date.now();
   activeTimer={
     subject,module,
@@ -600,32 +630,22 @@ function tickTimer(){
   if(!activeTimer)return;
   const remaining=Math.max(0,activeTimer.endTime-Date.now());
   const el=document.getElementById('active-timer-bar');
-  const countdownEl=el.querySelector('.timer-countdown');
   const mins=Math.floor(remaining/60000);
   const secs=Math.floor((remaining%60000)/1000);
-  countdownEl.textContent=`${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-
-  if(remaining<=0){
-    completeTimer();
-  }
+  el.querySelector('.timer-countdown').textContent=
+    `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  if(remaining<=0)completeTimer();
 }
 
 function completeTimer(){
   if(!activeTimer)return;
   clearInterval(activeTimer.intervalId);
-  const s=activeTimer.subject;
-  const m=activeTimer.module;
-  const dur=activeTimer.duration;
-  const start=new Date(activeTimer.startTime);
-  addRecordSilent(s,m,start,dur);
+  const s=activeTimer.subject,m=activeTimer.module,dur=activeTimer.duration;
+  addRecordSilent(s,m,new Date(activeTimer.startTime),dur);
   activeTimer=null;
   localStorage.removeItem(TIMER_KEY);
-  renderActiveTimerBar();
-  renderSubjectCards();
-  renderRecordsList();
-  updateStatsView();
+  renderActiveTimerBar();renderSubjectCards();renderRecordsList();updateStatsView();
   showToast(`✅ ${s} 学习完成！${dur} 分钟已记录`);
-  // Try notification
   try{
     if(Notification.permission==='granted'){
       new Notification('学习时间到！',{
@@ -635,17 +655,16 @@ function completeTimer(){
       });
     }
   }catch(e){}
-  // Audio feedback
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
     const osc=ctx.createOscillator();const gain=ctx.createGain();
     osc.connect(gain);gain.connect(ctx.destination);
-    osc.frequency.value=800;gain.gain.value=0.15;
-    osc.start();osc.stop(ctx.currentTime+0.15);
+    osc.frequency.value=800;gain.gain.value=0.12;
+    osc.start();osc.stop(ctx.currentTime+0.12);
     setTimeout(()=>{
       const o2=ctx.createOscillator();o2.connect(gain);
-      o2.frequency.value=1000;o2.start();o2.stop(ctx.currentTime+0.2);
-    },200);
+      o2.frequency.value=1000;o2.start();o2.stop(ctx.currentTime+0.18);
+    },180);
   }catch(e){}
 }
 
@@ -656,93 +675,70 @@ function stopTimer(){
   if(elapsed>=1){
     addRecordSilent(activeTimer.subject,activeTimer.module,new Date(activeTimer.startTime),elapsed);
     showToast(`⏹ 已停止 · 实际学习 ${elapsed} 分钟已记录`);
-  }else{
-    showToast('⏹ 已停止（不足1分钟，未记录）');
-  }
+  }else{showToast('⏹ 已停止（不足1分钟，未记录）');}
   activeTimer=null;
   localStorage.removeItem(TIMER_KEY);
-  renderActiveTimerBar();
-  renderSubjectCards();
-  renderRecordsList();
-  updateStatsView();
+  renderActiveTimerBar();renderSubjectCards();renderRecordsList();updateStatsView();
 }
 
 function requestNotificationPermission(){
-  if('Notification' in window && Notification.permission==='default'){
-    Notification.requestPermission();
-  }
+  if('Notification' in window && Notification.permission==='default')Notification.requestPermission();
 }
 
 // ========== RENDER ==========
 function renderActiveTimerBar(){
   const bar=document.getElementById('active-timer-bar');
-  if(!activeTimer){
-    bar.style.display='none';
-    return;
-  }
+  if(!activeTimer){bar.style.display='none';return;}
   bar.style.display='flex';
   bar.querySelector('.timer-subject').textContent=
-    `${SUBJECT_ICONS[activeTimer.subject]} ${activeTimer.subject}`;
+    `${getIcon(activeTimer.subject)} ${activeTimer.subject}`;
   const remaining=Math.max(0,activeTimer.endTime-Date.now());
-  const mins=Math.floor(remaining/60000);
-  const secs=Math.floor((remaining%60000)/1000);
+  const mins=Math.floor(remaining/60000),secs=Math.floor((remaining%60000)/1000);
   bar.querySelector('.timer-countdown').textContent=
     `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
 }
 
 function renderSubjectCards(){
-  const xcGrid=document.getElementById('grid-xingce');
-  const slGrid=document.getElementById('grid-shenlun');
-
-  // Calculate last study time and total duration for each subject
+  // Build stats for all known subjects
   const subjectStats={};
-  MODULES['行测'].concat(MODULES['申论']).forEach(s=>{
-    subjectStats[s]={lastDate:null,totalMin:0};
-  });
+  Object.values(MODULES).flat().forEach(s=>{subjectStats[s]={lastDate:null,totalMin:0};});
   records.forEach(r=>{
-    if(subjectStats[r.subject]){
-      subjectStats[r.subject].totalMin+=r.duration;
-      if(!subjectStats[r.subject].lastDate||r.date>subjectStats[r.subject].lastDate){
-        subjectStats[r.subject].lastDate=r.date;
-      }
+    if(!subjectStats[r.subject])subjectStats[r.subject]={lastDate:null,totalMin:0};
+    subjectStats[r.subject].totalMin+=r.duration;
+    if(!subjectStats[r.subject].lastDate||r.date>subjectStats[r.subject].lastDate){
+      subjectStats[r.subject].lastDate=r.date;
     }
   });
 
   function makeCard(subject,module){
-    const st=subjectStats[subject];
+    const st=subjectStats[subject]||{lastDate:null,totalMin:0};
     let lastStr='尚未学习';
     if(st.lastDate){
       const d=new Date(st.lastDate);
-      const now=new Date();
-      const diff=Math.floor((now-d)/86400000);
+      const diff=Math.floor((Date.now()-d)/86400000);
       if(diff===0)lastStr='今天学过';
       else if(diff===1)lastStr='昨天学过';
       else lastStr=`上次: ${st.lastDate.slice(5)}`;
     }
     const isRunning=activeTimer&&activeTimer.subject===subject;
-    return `<div class="subject-card${isRunning?' running':''}" onclick="openTimerSetup('${subject}','${module}')">
-      <span class="card-icon">${SUBJECT_ICONS[subject]}</span>
+    return `<div class="subject-card${isRunning?' running':''}" onclick="openTimerSetup('${subject.replace(/'/g,"\\'")}','${module}')">
+      <span class="card-icon">${getIcon(subject)}</span>
       <div class="card-name">${subject}</div>
       <div class="card-last">${lastStr} · 共${Math.floor(st.totalMin/60)}h${st.totalMin%60}m</div>
     </div>`;
   }
 
-  xcGrid.innerHTML=MODULES['行测'].map(s=>makeCard(s,'行测')).join('');
-  slGrid.innerHTML=MODULES['申论'].map(s=>makeCard(s,'申论')).join('');
+  document.getElementById('grid-xingce').innerHTML=MODULES['行测'].map(s=>makeCard(s,'行测')).join('');
+  document.getElementById('grid-shenlun').innerHTML=MODULES['申论'].map(s=>makeCard(s,'申论')).join('');
+  document.getElementById('grid-taoti').innerHTML=MODULES['套题'].map(s=>makeCard(s,'套题')).join('');
 }
 
 function renderRecordsList(){
   const container=document.getElementById('records-list');
   const empty=document.getElementById('records-empty');
-
-  if(records.length===0){
-    container.innerHTML='';
-    empty.style.display='block';
-    return;
-  }
+  if(records.length===0){container.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
 
-  // Group by date, sorted desc
   const sorted=[...records].sort((a,b)=>{
     if(a.date!==b.date)return b.date.localeCompare(a.date);
     return b.id-a.id;
@@ -754,20 +750,19 @@ function renderRecordsList(){
   });
 
   let html='';
+  const today=new Date().toISOString().split('T')[0];
+  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
   for(const[date,items]of Object.entries(groups)){
-    const today=new Date().toISOString().split('T')[0];
-    const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
     let label=date;
     if(date===today)label='今天';
     else if(date===yesterday)label='昨天';
 
     html+=`<div class="date-group"><div class="date-label">${label}</div>`;
     items.forEach(r=>{
-      const durH=Math.floor(r.duration/60);
-      const durM=r.duration%60;
+      const durH=Math.floor(r.duration/60),durM=r.duration%60;
       const durStr=durH>0?`${durH}h${durM}m`:`${durM}分钟`;
       html+=`<div class="record-item">
-        <span class="rec-icon">${SUBJECT_ICONS[r.subject]}</span>
+        <span class="rec-icon">${getIcon(r.subject)}</span>
         <div class="rec-info">
           <div class="rec-subject">${r.subject} <span style="font-size:10px;color:var(--text-secondary);">${r.module}</span></div>
           <div class="rec-meta">${r.startTime} · ${r.type==='manual'?'手动记录':'计时器'}</div>
@@ -785,9 +780,7 @@ function deleteRecord(id){
   if(!confirm('确定删除这条记录吗？'))return;
   records=records.filter(r=>r.id!==id);
   saveRecords();
-  renderRecordsList();
-  renderSubjectCards();
-  updateStatsView();
+  renderRecordsList();renderSubjectCards();updateStatsView();
   showToast('记录已删除');
 }
 
@@ -795,22 +788,71 @@ function deleteRecord(id){
 function getRecordsInPeriod(period){
   const now=new Date();
   let startDate;
-  if(period==='7'){
-    startDate=new Date(now);startDate.setDate(startDate.getDate()-6);
-  }else if(period==='month'){
-    startDate=new Date(now.getFullYear(),now.getMonth(),1);
-  }else{
-    startDate=new Date(now);startDate.setDate(startDate.getDate()-29);
-  }
+  if(period==='7'){startDate=new Date(now);startDate.setDate(startDate.getDate()-6);}
+  else if(period==='month'){startDate=new Date(now.getFullYear(),now.getMonth(),1);}
+  else{startDate=new Date(now);startDate.setDate(startDate.getDate()-29);}
   const startStr=startDate.toISOString().split('T')[0];
   return records.filter(r=>r.date>=startStr);
 }
 
 function updateStatsView(){
-  if(document.getElementById('view-stats').classList.contains('active')){
-    renderStats();
-  }
+  if(document.getElementById('view-stats').classList.contains('active'))renderStats();
 }
+
+// Custom plugin: outer labels with connecting lines
+const outerLabelPlugin = {
+  id: 'outerLabels',
+  afterDraw(chart){
+    const meta = chart.getDatasetMeta(0);
+    if(!meta||!meta.data||meta.data.length===0)return;
+    const total = chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+    if(total===0)return;
+    const ctx = chart.ctx;
+    const centerX = (chart.chartArea.left + chart.chartArea.right)/2;
+    const centerY = (chart.chartArea.top + chart.chartArea.bottom)/2;
+
+    meta.data.forEach((arc,i)=>{
+      const val = chart.data.datasets[0].data[i];
+      if(val===0)return;
+      const midAngle = (arc.startAngle + arc.endAngle)/2;
+      const outerR = arc.outerRadius;
+      // Start from arc outer edge
+      const sx = centerX + Math.cos(midAngle)*outerR;
+      const sy = centerY + Math.sin(midAngle)*outerR;
+      // Control point further out
+      const kx = centerX + Math.cos(midAngle)*(outerR+12);
+      const ky = centerY + Math.sin(midAngle)*(outerR+12);
+      // End point for text anchor
+      const isRight = Math.cos(midAngle) >= 0;
+      const ex = centerX + Math.cos(midAngle)*(outerR+45);
+      const ey = centerY + Math.sin(midAngle)*(outerR+45);
+
+      // Draw connecting line (two segments)
+      ctx.beginPath();
+      ctx.moveTo(sx,sy);
+      ctx.lineTo(kx,ky);
+      ctx.lineTo(ex,ey);
+      ctx.strokeStyle = '#D5D0CA';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Draw small dot at arc edge
+      ctx.beginPath();
+      ctx.arc(sx,sy,3,0,Math.PI*2);
+      ctx.fillStyle = getColor(chart.data.labels[i]);
+      ctx.fill();
+
+      // Draw label
+      const hours = (val/60).toFixed(1);
+      const label = `${chart.data.labels[i]} ${hours}h`;
+      ctx.fillStyle = '#4A4543';
+      ctx.font = '600 11px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.textAlign = isRight ? 'left' : 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, ex + (isRight ? 6 : -6), ey);
+    });
+  }
+};
 
 function renderStats(){
   const filtered=getRecordsInPeriod(currentPeriod);
@@ -818,36 +860,33 @@ function renderStats(){
 
   if(filtered.length===0){
     empty.style.display='block';
-    document.querySelectorAll('.chart-section').forEach(el=>el.style.display='none');
+    document.querySelectorAll('#view-stats .chart-section').forEach(el=>el.style.display='none');
     document.getElementById('summary-bar').innerHTML='';
     destroyCharts();
     return;
   }
   empty.style.display='none';
-  document.querySelectorAll('.chart-section').forEach(el=>el.style.display='');
+  document.querySelectorAll('#view-stats .chart-section').forEach(el=>el.style.display='');
 
-  // Summary
-  let xcTotal=0,slTotal=0;
+  // Summary by module
+  let xcTotal=0,slTotal=0,ttTotal=0;
   const subjectTotals={};
-  MODULES['行测'].concat(MODULES['申论']).forEach(s=>{subjectTotals[s]=0;});
   filtered.forEach(r=>{
     subjectTotals[r.subject]=(subjectTotals[r.subject]||0)+r.duration;
     if(r.module==='行测')xcTotal+=r.duration;
-    else slTotal+=r.duration;
+    else if(r.module==='申论')slTotal+=r.duration;
+    else ttTotal+=r.duration;
   });
 
-  const xcH=Math.floor(xcTotal/60),xcM=xcTotal%60;
-  const slH=Math.floor(slTotal/60),slM=slTotal%60;
+  function fmtHm(m){const h=Math.floor(m/60);return m>0?`${h}h${m%60}m`:'0m';}
   document.getElementById('summary-bar').innerHTML=`
-    <div class="summary-item xc"><div class="sum-val">${xcH}h${xcM}m</div><div class="sum-label">行测</div></div>
-    <div class="summary-item sl"><div class="sum-val">${slH}h${slM}m</div><div class="sum-label">申论</div></div>
+    <div class="summary-item xc"><div class="sum-val">${fmtHm(xcTotal)}</div><div class="sum-label">行测</div></div>
+    <div class="summary-item sl"><div class="sum-val">${fmtHm(slTotal)}</div><div class="sum-label">申论</div></div>
+    <div class="summary-item tt"><div class="sum-val">${fmtHm(ttTotal)}</div><div class="sum-label">套题</div></div>
   `;
 
-  // Pie: subject distribution
   renderSubjectPie(subjectTotals);
-  // Pie: module
-  renderModulePie(xcTotal,slTotal);
-  // Trend
+  renderModulePie(xcTotal,slTotal,ttTotal);
   renderTrendChart(filtered);
 }
 
@@ -860,42 +899,45 @@ function renderSubjectPie(totals){
   if(charts.subject)charts.subject.destroy();
   const ctx=document.getElementById('chart-subject').getContext('2d');
   const labels=[],data=[],colors=[];
-  MODULES['行测'].concat(MODULES['申论']).forEach(s=>{
-    if(totals[s]>0){
-      labels.push(s);
-      data.push(totals[s]);
-      colors.push(SUBJECT_COLOR_MAP[s]);
-    }
+  Object.entries(totals).sort((a,b)=>b[1]-a[1]).forEach(([s,v])=>{
+    if(v>0){labels.push(s);data.push(v);colors.push(getColor(s));}
   });
   if(labels.length===0)return;
   charts.subject=new Chart(ctx,{
     type:'doughnut',
-    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#FEFDFB'}]},
     options:{
       responsive:true,maintainAspectRatio:true,
+      layout:{padding:{top:10,bottom:10,left:50,right:50}},
       plugins:{
-        legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:12}}}
+        legend:{display:false},
+        outerLabels:{}
       }
-    }
+    },
+    plugins:[outerLabelPlugin]
   });
 }
 
-function renderModulePie(xc,sl){
+function renderModulePie(xc,sl,tt){
   if(charts.module)charts.module.destroy();
   const ctx=document.getElementById('chart-module').getContext('2d');
-  if(xc===0&&sl===0)return;
+  const labels=[],data=[],colors=[];
+  if(xc>0){labels.push('行测');data.push(xc);colors.push(MODULE_COLORS['行测']);}
+  if(sl>0){labels.push('申论');data.push(sl);colors.push(MODULE_COLORS['申论']);}
+  if(tt>0){labels.push('套题');data.push(tt);colors.push(MODULE_COLORS['套题']);}
+  if(labels.length===0)return;
   charts.module=new Chart(ctx,{
     type:'doughnut',
-    data:{
-      labels:['行测','申论'],
-      datasets:[{data:[xc,sl],backgroundColor:['#6d9e6a','#5b8cb8'],borderWidth:2,borderColor:'#fff'}]
-    },
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#FEFDFB'}]},
     options:{
       responsive:true,maintainAspectRatio:true,
+      layout:{padding:{top:10,bottom:10,left:40,right:40}},
       plugins:{
-        legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:12}}}
+        legend:{display:false},
+        outerLabels:{}
       }
-    }
+    },
+    plugins:[outerLabelPlugin]
   });
 }
 
@@ -903,22 +945,17 @@ function renderTrendChart(filtered){
   if(charts.trend)charts.trend.destroy();
   const ctx=document.getElementById('chart-trend').getContext('2d');
 
-  // Group by date
   const dailyTotals={};
   filtered.forEach(r=>{dailyTotals[r.date]=(dailyTotals[r.date]||0)+r.duration;});
 
-  // Generate all dates in range
   let startDate,endDate;
   const now=new Date();
   if(currentPeriod==='7'){
-    startDate=new Date(now);startDate.setDate(startDate.getDate()-6);
-    endDate=now;
+    startDate=new Date(now);startDate.setDate(startDate.getDate()-6);endDate=now;
   }else if(currentPeriod==='month'){
-    startDate=new Date(now.getFullYear(),now.getMonth(),1);
-    endDate=now;
+    startDate=new Date(now.getFullYear(),now.getMonth(),1);endDate=now;
   }else{
-    startDate=new Date(now);startDate.setDate(startDate.getDate()-29);
-    endDate=now;
+    startDate=new Date(now);startDate.setDate(startDate.getDate()-29);endDate=now;
   }
 
   const labels=[],data=[];
@@ -926,11 +963,10 @@ function renderTrendChart(filtered){
   while(d<=endDate){
     const ds=d.toISOString().split('T')[0];
     labels.push(`${d.getMonth()+1}/${d.getDate()}`);
-    data.push(Math.round((dailyTotals[ds]||0)/60*10)/10); // Convert to hours with 1 decimal
+    data.push(Math.round((dailyTotals[ds]||0)/60*10)/10);
     d.setDate(d.getDate()+1);
   }
 
-  const barColor=labels.length>14?'rgba(109,158,106,0.7)':'rgba(109,158,106,0.6)';
   charts.trend=new Chart(ctx,{
     type:'bar',
     data:{
@@ -939,18 +975,15 @@ function renderTrendChart(filtered){
         label:'学习时长 (小时)',
         data,
         backgroundColor:data.map((_,i)=>{
-          const colors=['rgba(109,158,106,0.45)','rgba(109,158,106,0.55)','rgba(109,158,106,0.65)','rgba(109,158,106,0.75)','rgba(109,158,106,0.85)'];
-          return colors[Math.min(i,4)];
+          const shades=['rgba(163,191,168,0.4)','rgba(163,191,168,0.5)','rgba(163,191,168,0.6)','rgba(163,191,168,0.7)','rgba(163,191,168,0.8)'];
+          return shades[Math.min(i,4)];
         }),
-        borderRadius:6,
-        borderSkipped:false
+        borderRadius:6,borderSkipped:false
       }]
     },
     options:{
       responsive:true,maintainAspectRatio:true,
-      plugins:{
-        legend:{display:false}
-      },
+      plugins:{legend:{display:false}},
       scales:{
         y:{beginAtZero:true,ticks:{font:{size:10}},title:{display:true,text:'小时',font:{size:10}}},
         x:{ticks:{font:{size:labels.length>14?8:10},maxRotation:labels.length>14?45:0}}
@@ -965,23 +998,18 @@ function exportData(format){
   if(format==='csv'){
     const header='日期,模块,科目,开始时间,时长(分钟),记录方式\n';
     const rows=records.map(r=>`${r.date},${r.module},${r.subject},${r.startTime},${r.duration},${r.type==='manual'?'手动':'计时'}`).join('\n');
-    const BOM='﻿';
-    downloadFile(BOM+header+rows,'公考学习记录.csv','text/csv;charset=utf-8');
+    downloadFile('﻿'+header+rows,'公考学习记录.csv','text/csv;charset=utf-8');
   }else{
-    const data=JSON.stringify(records,null,2);
-    downloadFile(data,'公考学习记录_备份.json','application/json');
+    downloadFile(JSON.stringify(records,null,2),'公考学习记录_备份.json','application/json');
   }
-  closeModal('modal-export');
-  showToast('导出成功！');
+  closeModal('modal-export');showToast('导出成功！');
 }
 
 function downloadFile(content,filename,mimeType){
   const blob=new Blob([content],{type:mimeType});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);
+  const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
@@ -1005,10 +1033,15 @@ function switchTab(tab){
 // ========== MANUAL RECORD ==========
 function saveManualRecord(){
   const module=document.getElementById('man-module').value;
-  const subject=document.getElementById('man-subject').value;
+  let subject=document.getElementById('man-subject').value;
   const date=document.getElementById('man-date').value;
   const start=document.getElementById('man-start').value;
   const dur=parseInt(document.getElementById('man-duration').value);
+
+  if(subject==='__custom__'){
+    subject=document.getElementById('man-custom-subject').value.trim();
+    if(!subject){showToast('请输入自定义科目名称');return;}
+  }
 
   if(!date||!start||!dur||dur<1){showToast('请填写完整的记录信息');return;}
 
@@ -1019,36 +1052,28 @@ function saveManualRecord(){
   });
   saveRecords();
   closeModal('modal-manual');
-  renderSubjectCards();
-  renderRecordsList();
-  updateStatsView();
+  renderSubjectCards();renderRecordsList();updateStatsView();
   showToast('✅ 记录已保存');
 }
 
 // ========== PWA ==========
 function setupPWA(){
-  // Create manifest as blob URL
   const manifest={
-    name:'公考学习计时',
-    short_name:'公考计时',
+    name:'公考学习计时',short_name:'公考计时',
     description:'公务员备考学习时长记录与统计',
     start_url:location.href,
-    display:'standalone',
-    orientation:'portrait',
-    background_color:'#f3f7f1',
-    theme_color:'#6d9e6a',
+    display:'standalone',orientation:'portrait',
+    background_color:'#F5F4F0',theme_color:'#A3BFA8',
     icons:[{
-      src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#6d9e6a"/><text x="96" y="120" text-anchor="middle" font-size="100">📚</text></svg>'),
+      src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#A3BFA8"/><text x="96" y="120" text-anchor="middle" font-size="100">📚</text></svg>'),
       sizes:'192x192',type:'image/svg+xml'
     }]
   };
   const manifestBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-  const manifestURL=URL.createObjectURL(manifestBlob);
   const link=document.createElement('link');
-  link.rel='manifest';link.href=manifestURL;
+  link.rel='manifest';link.href=URL.createObjectURL(manifestBlob);
   document.head.appendChild(link);
 
-  // Try registering service worker
   if('serviceWorker' in navigator){
     const swCode=`
 self.addEventListener('install',e=>{self.skipWaiting();});
@@ -1056,8 +1081,7 @@ self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
 self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});
 `;
     const swBlob=new Blob([swCode],{type:'application/javascript'});
-    const swURL=URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swURL).catch(()=>{});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
   }
 }
 
@@ -1065,18 +1089,13 @@ self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>cache
 function init(){
   loadRecords();
   const saved=loadActiveTimer();
-  if(saved){
-    activeTimer=saved;
-    activeTimer.intervalId=setInterval(tickTimer,1000);
-  }
+  if(saved){activeTimer=saved;activeTimer.intervalId=setInterval(tickTimer,1000);}
 
-  // Duration preset buttons
   const presets=[15,25,45,60,90];
   document.getElementById('duration-presets').innerHTML=presets.map(d=>
     `<button class="dur-btn" onclick="selectDuration(${d},this)">${d} 分钟</button>`
   ).join('');
 
-  // Setup event listeners
   document.querySelectorAll('.nav-item').forEach(btn=>{
     btn.addEventListener('click',()=>switchTab(btn.dataset.tab));
   });
@@ -1089,14 +1108,12 @@ function init(){
     });
   });
 
-  // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay=>{
     overlay.addEventListener('click',function(e){
       if(e.target===this)this.classList.remove('show');
     });
   });
 
-  // Initial render
   renderActiveTimerBar();
   renderSubjectCards();
   setupPWA();
@@ -1110,13 +1127,13 @@ function selectDuration(dur,btn){
   document.getElementById('custom-duration').value='';
 }
 
-// Global functions
 window.openTimerSetup=openTimerSetup;
 window.openManualModal=openManualModal;
 window.openExportModal=openExportModal;
 window.closeModal=closeModal;
 window.confirmStartTimer=confirmStartTimer;
 window.updateManualSubjects=updateManualSubjects;
+window.onSubjectChange=onSubjectChange;
 window.saveManualRecord=saveManualRecord;
 window.stopTimer=stopTimer;
 window.deleteRecord=deleteRecord;
