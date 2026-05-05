@@ -130,7 +130,7 @@ body{
   padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);
 }
 .chart-section h3{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
-.chart-wrap{position:relative;width:85%;max-width:300px;margin:0 auto;}
+.chart-wrap{position:relative;width:94%;max-width:370px;margin:0 auto;}
 .chart-wrap canvas{width:100%!important;}
 .chart-wrap.trend{width:100%;max-width:none;}
 
@@ -819,13 +819,13 @@ const outerLabelPlugin = {
       // Start from arc outer edge
       const sx = centerX + Math.cos(midAngle)*outerR;
       const sy = centerY + Math.sin(midAngle)*outerR;
-      // Control point further out
-      const kx = centerX + Math.cos(midAngle)*(outerR+12);
-      const ky = centerY + Math.sin(midAngle)*(outerR+12);
-      // End point for text anchor
+      // Control point just outside the arc
+      const kx = centerX + Math.cos(midAngle)*(outerR+6);
+      const ky = centerY + Math.sin(midAngle)*(outerR+6);
+      // End point for text anchor — stay close to the chart
       const isRight = Math.cos(midAngle) >= 0;
-      const ex = centerX + Math.cos(midAngle)*(outerR+45);
-      const ey = centerY + Math.sin(midAngle)*(outerR+45);
+      const ex = centerX + Math.cos(midAngle)*(outerR+22);
+      const ey = centerY + Math.sin(midAngle)*(outerR+22);
 
       // Draw connecting line (two segments)
       ctx.beginPath();
@@ -849,7 +849,7 @@ const outerLabelPlugin = {
       ctx.font = '600 11px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
       ctx.textAlign = isRight ? 'left' : 'right';
       ctx.textBaseline = 'middle';
-      ctx.fillText(label, ex + (isRight ? 6 : -6), ey);
+      ctx.fillText(label, ex + (isRight ? 4 : -4), ey);
     });
   }
 };
@@ -908,7 +908,7 @@ function renderSubjectPie(totals){
     data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#FEFDFB'}]},
     options:{
       responsive:true,maintainAspectRatio:true,
-      layout:{padding:{top:10,bottom:10,left:50,right:50}},
+      layout:{padding:{top:20,bottom:10,left:65,right:65}},
       plugins:{
         legend:{display:false},
         outerLabels:{}
@@ -931,7 +931,7 @@ function renderModulePie(xc,sl,tt){
     data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#FEFDFB'}]},
     options:{
       responsive:true,maintainAspectRatio:true,
-      layout:{padding:{top:10,bottom:10,left:40,right:40}},
+      layout:{padding:{top:20,bottom:10,left:55,right:55}},
       plugins:{
         legend:{display:false},
         outerLabels:{}
