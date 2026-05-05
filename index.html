@@ -329,6 +329,7 @@ body{
   <div id="view-stats" class="view">
     <div class="stats-header"><h2>📊 学习统计</h2></div>
     <div class="period-selector">
+      <button class="period-btn" data-period="today">当日</button>
       <button class="period-btn active" data-period="7">近7天</button>
       <button class="period-btn" data-period="month">本月</button>
       <button class="period-btn" data-period="30">近30天</button>
@@ -343,7 +344,7 @@ body{
       <div class="chart-wrap"><canvas id="chart-module"></canvas></div>
     </div>
     <div class="chart-section">
-      <h3>每日学习趋势</h3>
+      <h3 id="trend-title">每日学习趋势</h3>
       <div class="chart-wrap trend"><canvas id="chart-trend"></canvas></div>
     </div>
     <div class="stats-empty" id="stats-empty" style="display:none;">
@@ -787,6 +788,8 @@ function deleteRecord(id){
 // ========== STATS ==========
 function getRecordsInPeriod(period){
   const now=new Date();
+  const todayStr=now.toISOString().split('T')[0];
+  if(period==='today'){return records.filter(r=>r.date===todayStr);}
   let startDate;
   if(period==='7'){startDate=new Date(now);startDate.setDate(startDate.getDate()-6);}
   else if(period==='month'){startDate=new Date(now.getFullYear(),now.getMonth(),1);}
@@ -799,57 +802,76 @@ function updateStatsView(){
   if(document.getElementById('view-stats').classList.contains('active'))renderStats();
 }
 
-// Custom plugin: outer labels with connecting lines
-const outerLabelPlugin = {
-  id: 'outerLabels',
+// Smart label plugin: prefer on-chart, minimal outside fallback
+const smartLabelPlugin = {
+  id: 'smartLabels',
   afterDraw(chart){
     const meta = chart.getDatasetMeta(0);
     if(!meta||!meta.data||meta.data.length===0)return;
     const total = chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
     if(total===0)return;
     const ctx = chart.ctx;
-    const centerX = (chart.chartArea.left + chart.chartArea.right)/2;
-    const centerY = (chart.chartArea.top + chart.chartArea.bottom)/2;
+    const cx = (chart.chartArea.left + chart.chartArea.right)/2;
+    const cy = (chart.chartArea.top + chart.chartArea.bottom)/2;
 
     meta.data.forEach((arc,i)=>{
       const val = chart.data.datasets[0].data[i];
       if(val===0)return;
       const midAngle = (arc.startAngle + arc.endAngle)/2;
+      const angleSpan = arc.endAngle - arc.startAngle;
       const outerR = arc.outerRadius;
-      // Start from arc outer edge
-      const sx = centerX + Math.cos(midAngle)*outerR;
-      const sy = centerY + Math.sin(midAngle)*outerR;
-      // Control point just outside the arc
-      const kx = centerX + Math.cos(midAngle)*(outerR+6);
-      const ky = centerY + Math.sin(midAngle)*(outerR+6);
-      // End point for text anchor — stay close to the chart
-      const isRight = Math.cos(midAngle) >= 0;
-      const ex = centerX + Math.cos(midAngle)*(outerR+22);
-      const ey = centerY + Math.sin(midAngle)*(outerR+22);
-
-      // Draw connecting line (two segments)
-      ctx.beginPath();
-      ctx.moveTo(sx,sy);
-      ctx.lineTo(kx,ky);
-      ctx.lineTo(ex,ey);
-      ctx.strokeStyle = '#D5D0CA';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Draw small dot at arc edge
-      ctx.beginPath();
-      ctx.arc(sx,sy,3,0,Math.PI*2);
-      ctx.fillStyle = getColor(chart.data.labels[i]);
-      ctx.fill();
-
-      // Draw label
+      const innerR = arc.innerRadius || outerR*0.55;
+      const midR = (innerR + outerR)/2;
       const hours = (val/60).toFixed(1);
-      const label = `${chart.data.labels[i]} ${hours}h`;
-      ctx.fillStyle = '#4A4543';
-      ctx.font = '600 11px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-      ctx.textAlign = isRight ? 'left' : 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(label, ex + (isRight ? 4 : -4), ey);
+      const name = chart.data.labels[i];
+      const text = `${name} ${hours}h`;
+
+      // Available chord width at midR (80% for padding)
+      const chordW = 2 * midR * Math.sin(angleSpan/2) * 0.78;
+
+      // Measure text
+      ctx.font = '600 10px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+      const tw = ctx.measureText(text).width;
+
+      const fitsOnChart = tw < chordW && angleSpan > 0.38;
+
+      if(fitsOnChart){
+        // === ON the segment ===
+        const tx = cx + Math.cos(midAngle)*midR;
+        const ty = cy + Math.sin(midAngle)*midR;
+        ctx.fillStyle = '#4A4543';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, tx, ty);
+      } else {
+        // === Outside with minimal connector ===
+        const sx = cx + Math.cos(midAngle)*outerR;
+        const sy = cy + Math.sin(midAngle)*outerR;
+        const isRight = Math.cos(midAngle) >= 0;
+        const ex = cx + Math.cos(midAngle)*(outerR+13);
+        const ey = cy + Math.sin(midAngle)*(outerR+13);
+
+        // Dot at arc edge
+        ctx.beginPath();
+        ctx.arc(sx,sy,2.5,0,Math.PI*2);
+        ctx.fillStyle = getColor(name);
+        ctx.fill();
+
+        // Short line
+        ctx.beginPath();
+        ctx.moveTo(sx,sy);
+        ctx.lineTo(ex,ey);
+        ctx.strokeStyle = '#D5D0CA';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = '#4A4543';
+        ctx.font = '600 10px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+        ctx.textAlign = isRight ? 'left' : 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, ex + (isRight ? 4 : -4), ey);
+      }
     });
   }
 };
@@ -908,13 +930,13 @@ function renderSubjectPie(totals){
     data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#FEFDFB'}]},
     options:{
       responsive:true,maintainAspectRatio:true,
-      layout:{padding:{top:20,bottom:10,left:65,right:65}},
+      layout:{padding:{top:14,bottom:10,left:44,right:44}},
       plugins:{
         legend:{display:false},
-        outerLabels:{}
+        smartLabels:{}
       }
     },
-    plugins:[outerLabelPlugin]
+    plugins:[smartLabelPlugin]
   });
 }
 
@@ -931,40 +953,50 @@ function renderModulePie(xc,sl,tt){
     data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#FEFDFB'}]},
     options:{
       responsive:true,maintainAspectRatio:true,
-      layout:{padding:{top:20,bottom:10,left:55,right:55}},
+      layout:{padding:{top:14,bottom:10,left:40,right:40}},
       plugins:{
         legend:{display:false},
-        outerLabels:{}
+        smartLabels:{}
       }
     },
-    plugins:[outerLabelPlugin]
+    plugins:[smartLabelPlugin]
   });
 }
 
 function renderTrendChart(filtered){
   if(charts.trend)charts.trend.destroy();
+  document.getElementById('trend-title').textContent=
+    currentPeriod==='today' ? '时段分布' : '每日学习趋势';
   const ctx=document.getElementById('chart-trend').getContext('2d');
-
-  const dailyTotals={};
-  filtered.forEach(r=>{dailyTotals[r.date]=(dailyTotals[r.date]||0)+r.duration;});
-
-  let startDate,endDate;
-  const now=new Date();
-  if(currentPeriod==='7'){
-    startDate=new Date(now);startDate.setDate(startDate.getDate()-6);endDate=now;
-  }else if(currentPeriod==='month'){
-    startDate=new Date(now.getFullYear(),now.getMonth(),1);endDate=now;
-  }else{
-    startDate=new Date(now);startDate.setDate(startDate.getDate()-29);endDate=now;
-  }
-
   const labels=[],data=[];
-  const d=new Date(startDate);
-  while(d<=endDate){
-    const ds=d.toISOString().split('T')[0];
-    labels.push(`${d.getMonth()+1}/${d.getDate()}`);
-    data.push(Math.round((dailyTotals[ds]||0)/60*10)/10);
-    d.setDate(d.getDate()+1);
+
+  if(currentPeriod==='today'){
+    // Group by 2-hour blocks for today
+    const hourly=[0,0,0,0,0,0,0,0,0,0,0,0]; // 12 blocks: 0-2,2-4,...,22-24
+    filtered.forEach(r=>{
+      const h=parseInt(r.startTime.split(':')[0])||0;
+      const block=Math.min(Math.floor(h/2),11);
+      hourly[block]+=r.duration;
+    });
+    for(let i=0;i<12;i++){
+      labels.push(`${i*2}:00`);
+      data.push(Math.round(hourly[i]/60*10)/10);
+    }
+  } else {
+    const dailyTotals={};
+    filtered.forEach(r=>{dailyTotals[r.date]=(dailyTotals[r.date]||0)+r.duration;});
+    const now=new Date();
+    let startDate,endDate;
+    if(currentPeriod==='7'){startDate=new Date(now);startDate.setDate(startDate.getDate()-6);endDate=now;}
+    else if(currentPeriod==='month'){startDate=new Date(now.getFullYear(),now.getMonth(),1);endDate=now;}
+    else{startDate=new Date(now);startDate.setDate(startDate.getDate()-29);endDate=now;}
+    const d=new Date(startDate);
+    while(d<=endDate){
+      const ds=d.toISOString().split('T')[0];
+      labels.push(`${d.getMonth()+1}/${d.getDate()}`);
+      data.push(Math.round((dailyTotals[ds]||0)/60*10)/10);
+      d.setDate(d.getDate()+1);
+    }
   }
 
   charts.trend=new Chart(ctx,{
@@ -972,7 +1004,7 @@ function renderTrendChart(filtered){
     data:{
       labels,
       datasets:[{
-        label:'学习时长 (小时)',
+        label: currentPeriod==='today' ? '学习时长 (小时)' : '学习时长 (小时)',
         data,
         backgroundColor:data.map((_,i)=>{
           const shades=['rgba(163,191,168,0.4)','rgba(163,191,168,0.5)','rgba(163,191,168,0.6)','rgba(163,191,168,0.7)','rgba(163,191,168,0.8)'];
