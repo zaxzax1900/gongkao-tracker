@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f3f7f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="公考学习计时">
+<title>公考学习计时</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
+<style>
+:root {
+  --bg: #f3f7f1;
+  --card: #ffffff;
+  --primary: #6d9e6a;
+  --primary-dark: #5a8557;
+  --primary-light: #e8f3e6;
+  --shenlun: #5b8cb8;
+  --shenlun-light: #e6f0f8;
+  --text: #3b4638;
+  --text-secondary: #8a9a85;
+  --border: #e3e9df;
+  --danger: #d4756b;
+  --warning: #e8a850;
+  --shadow: 0 2px 12px rgba(59,70,56,0.08);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;
+  user-select:none;
+}
+/* Active Timer Bar */
+#active-timer-bar{
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  background:linear-gradient(135deg,#e8a850,#e8973a);
+  color:#fff;
+  font-weight:600;
+  font-size:15px;
+  position:relative;
+  z-index:10;
+  animation:pulse-bar 2s ease-in-out infinite;
+}
+@keyframes pulse-bar{0%,100%{opacity:1;}50%{opacity:0.88;}}
+#active-timer-bar .timer-icon{font-size:22px;}
+#active-timer-bar .timer-subject{flex:1;}
+#active-timer-bar .timer-countdown{font-variant-numeric:tabular-nums;font-size:18px;letter-spacing:1px;}
+#active-timer-bar .timer-stop{
+  background:rgba(255,255,255,0.25);
+  border:none;color:#fff;width:32px;height:32px;border-radius:50%;
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s;
+}
+#active-timer-bar .timer-stop:active{background:rgba(255,255,255,0.4);}
+
+/* Main Content */
+#main-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+
+/* Views */
+.view{display:none;padding:16px 16px 100px;}
+.view.active{display:block;}
+
+/* Timer View */
+.timer-header{text-align:center;padding:8px 0 18px;}
+.timer-header h1{font-size:22px;font-weight:700;color:var(--text);}
+.timer-header .subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px;}
+
+.module-section{margin-bottom:18px;}
+.module-label{
+  font-size:13px;font-weight:600;color:var(--text-secondary);
+  letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.module-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.subject-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.subject-grid.col2{grid-template-columns:repeat(2,1fr);}
+
+.subject-card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:16px 10px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition:transform 0.15s,box-shadow 0.15s;
+  border:1.5px solid transparent;
+  position:relative;
+}
+.subject-card:active{transform:scale(0.96);box-shadow:0 1px 4px rgba(59,70,56,0.1);}
+.subject-card .card-icon{font-size:32px;display:block;margin-bottom:6px;}
+.subject-card .card-name{font-size:13px;font-weight:600;color:var(--text);}
+.subject-card .card-last{
+  font-size:11px;color:var(--text-secondary);margin-top:4px;
+}
+.subject-card.running{
+  border-color:var(--warning);
+  background:linear-gradient(135deg,#fff9f0,#fff3e0);
+}
+
+/* Stats View */
+.stats-header{text-align:center;padding:8px 0 12px;}
+.stats-header h2{font-size:20px;font-weight:700;}
+
+.period-selector{
+  display:flex;gap:8px;margin-bottom:16px;
+  background:var(--card);border-radius:var(--radius-sm);
+  padding:4px;box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.period-btn{
+  flex:1;padding:8px 0;border:none;background:none;
+  font-size:13px;font-weight:600;color:var(--text-secondary);
+  border-radius:8px;cursor:pointer;transition:all 0.2s;
+  font-family:var(--font);
+}
+.period-btn.active{background:var(--primary);color:#fff;}
+
+.chart-section{
+  background:var(--card);border-radius:var(--radius);
+  padding:16px;margin-bottom:14px;box-shadow:var(--shadow);
+}
+.chart-section h3{font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;}
+.chart-wrap{position:relative;width:100%;max-height:260px;}
+.chart-wrap canvas{width:100%!important;}
+.chart-wrap.trend{max-height:240px;}
+
+.stats-empty{text-align:center;padding:40px 20px;color:var(--text-secondary);}
+.stats-empty .empty-icon{font-size:48px;display:block;margin-bottom:12px;}
+
+/* Records View */
+.records-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0 14px;
+}
+.records-header h2{font-size:20px;font-weight:700;}
+
+.btn{
+  padding:8px 16px;border:none;border-radius:20px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  font-family:var(--font);transition:all 0.2s;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:active{background:var(--primary-dark);}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text);}
+.btn-outline:active{background:var(--primary-light);}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:16px;}
+.btn-danger{background:var(--danger);color:#fff;}
+
+.records-actions{display:flex;gap:8px;}
+
+.date-group{margin-bottom:16px;}
+.date-label{
+  font-size:12px;font-weight:600;color:var(--text-secondary);
+  padding:6px 0;letter-spacing:0.5px;position:sticky;top:0;
+  background:var(--bg);z-index:2;
+}
+.record-item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);padding:12px 14px;
+  border-radius:var(--radius-sm);margin-bottom:6px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.record-item .rec-icon{font-size:24px;}
+.record-item .rec-info{flex:1;min-width:0;}
+.record-item .rec-subject{font-size:14px;font-weight:600;}
+.record-item .rec-meta{font-size:11px;color:var(--text-secondary);}
+.record-item .rec-duration{font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap;}
+.record-item .rec-del{
+  background:none;border:none;font-size:16px;cursor:pointer;
+  padding:4px;color:#ccc;transition:color 0.2s;
+}
+.record-item .rec-del:active{color:var(--danger);}
+
+.records-empty{text-align:center;padding:40px 20px;color:var(--text-secondary);}
+.records-empty .empty-icon{font-size:48px;display:block;margin-bottom:12px;}
+
+.summary-bar{
+  display:flex;gap:10px;margin-bottom:14px;
+}
+.summary-item{
+  flex:1;background:var(--card);border-radius:var(--radius-sm);
+  padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.summary-item .sum-val{font-size:22px;font-weight:700;}
+.summary-item .sum-label{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+.summary-item.xc .sum-val{color:var(--primary);}
+.summary-item.sl .sum-val{color:var(--shenlun);}
+
+/* Bottom Nav */
+#bottom-nav{
+  display:flex;background:var(--card);
+  border-top:1px solid var(--border);
+  padding:6px 0 env(safe-area-inset-bottom,8px);
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:6px 0;border:none;background:none;
+  font-size:11px;font-weight:500;color:var(--text-secondary);
+  cursor:pointer;font-family:var(--font);transition:color 0.2s;
+}
+.nav-item .nav-icon{font-size:20px;}
+.nav-item.active{color:var(--primary);font-weight:600;}
+
+/* Modals */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);
+  z-index:50;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.show{display:flex;}
+.modal-sheet{
+  background:var(--bg);width:100%;max-width:500px;
+  border-radius:18px 18px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0));
+  animation:slideUp 0.25s ease-out;
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+
+.modal-sheet h3{font-size:17px;font-weight:700;margin-bottom:16px;text-align:center;}
+.modal-sheet .pick-subject{text-align:center;font-size:15px;color:var(--text-secondary);margin-bottom:14px;}
+
+.duration-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.dur-btn{
+  padding:12px 0;border:1.5px solid var(--border);
+  background:var(--card);border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;cursor:pointer;
+  font-family:var(--font);transition:all 0.15s;
+}
+.dur-btn:active,.dur-btn.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+
+.custom-dur{
+  display:flex;align-items:center;gap:8px;margin-bottom:16px;
+  justify-content:center;
+}
+.custom-dur input{
+  width:70px;padding:10px;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);text-align:center;font-size:15px;
+  font-family:var(--font);background:var(--card);
+}
+.custom-dur input:focus{outline:none;border-color:var(--primary);}
+
+.form-group{margin-bottom:12px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
+.form-group select,.form-group input{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);font-size:14px;font-family:var(--font);
+  background:var(--card);
+}
+.form-group select:focus,.form-group input:focus{outline:none;border-color:var(--primary);}
+.form-row{display:flex;gap:10px;}
+.form-row .form-group{flex:1;}
+
+.btn-full{
+  width:100%;padding:12px;text-align:center;justify-content:center;
+  border-radius:var(--radius-sm);font-size:15px;margin-top:4px;
+}
+.btn-full:active{transform:scale(0.98);}
+
+/* Export modal */
+.export-options{display:flex;flex-direction:column;gap:10px;}
+.export-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;background:var(--card);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;cursor:pointer;
+  font-family:var(--font);transition:all 0.15s;
+}
+.export-btn:active{background:var(--primary-light);border-color:var(--primary);}
+.export-btn .exp-icon{font-size:22px;}
+
+/* Toast */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  background:#3b4638;color:#fff;padding:10px 22px;
+  border-radius:20px;font-size:13px;font-weight:600;
+  z-index:100;opacity:0;transition:opacity 0.3s;
+  pointer-events:none;
+}
+.toast.show{opacity:1;}
+
+/* Responsive */
+@media(min-width:420px){
+  .subject-grid{grid-template-columns:repeat(3,1fr);}
+  .subject-grid.col2{grid-template-columns:repeat(3,1fr);}
+  .subject-grid.col2 .subject-card:last-child{grid-column:span 1;}
+}
+</style>
+</head>
+<body>
+
+<!-- Active Timer Bar -->
+<div id="active-timer-bar">
+  <span class="timer-icon">⏱️</span>
+  <span class="timer-subject"></span>
+  <span class="timer-countdown"></span>
+  <button class="timer-stop" title="停止计时" onclick="stopTimer()">⏹</button>
+</div>
+
+<!-- Main Content -->
+<div id="main-content">
+  <!-- Timer View -->
+  <div id="view-timer" class="view active">
+    <div class="timer-header">
+      <h1>📚 公考学习计时</h1>
+      <div class="subtitle">点击科目卡片开始计时，专注每一分钟</div>
+    </div>
+    <div class="module-section">
+      <div class="module-label">📐 行测</div>
+      <div class="subject-grid" id="grid-xingce"></div>
+    </div>
+    <div class="module-section">
+      <div class="module-label">📝 申论</div>
+      <div class="subject-grid col2" id="grid-shenlun"></div>
+    </div>
+  </div>
+
+  <!-- Stats View -->
+  <div id="view-stats" class="view">
+    <div class="stats-header"><h2>📊 学习统计</h2></div>
+    <div class="period-selector">
+      <button class="period-btn active" data-period="7">近7天</button>
+      <button class="period-btn" data-period="month">本月</button>
+      <button class="period-btn" data-period="30">近30天</button>
+    </div>
+    <div class="summary-bar" id="summary-bar"></div>
+    <div class="chart-section">
+      <h3>各科目时长分布</h3>
+      <div class="chart-wrap"><canvas id="chart-subject"></canvas></div>
+    </div>
+    <div class="chart-section">
+      <h3>行测 vs 申论</h3>
+      <div class="chart-wrap"><canvas id="chart-module"></canvas></div>
+    </div>
+    <div class="chart-section">
+      <h3>每日学习趋势</h3>
+      <div class="chart-wrap trend"><canvas id="chart-trend"></canvas></div>
+    </div>
+    <div class="stats-empty" id="stats-empty" style="display:none;">
+      <span class="empty-icon">📭</span>
+      <p>还没有学习记录，开始计时吧~</p>
+    </div>
+  </div>
+
+  <!-- Records View -->
+  <div id="view-records" class="view">
+    <div class="records-header">
+      <h2>📋 学习记录</h2>
+      <div class="records-actions">
+        <button class="btn btn-outline btn-sm" onclick="openExportModal()">📤 导出</button>
+        <button class="btn btn-primary btn-sm" onclick="openManualModal()">＋ 补记录</button>
+      </div>
+    </div>
+    <div id="records-list"></div>
+    <div class="records-empty" id="records-empty" style="display:none;">
+      <span class="empty-icon">📭</span>
+      <p>还没有学习记录</p>
+      <button class="btn btn-primary" style="margin-top:12px;" onclick="openManualModal()">＋ 添加一条记录</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav id="bottom-nav">
+  <button class="nav-item active" data-tab="timer">
+    <span class="nav-icon">⏱️</span>计时
+  </button>
+  <button class="nav-item" data-tab="stats">
+    <span class="nav-icon">📊</span>统计
+  </button>
+  <button class="nav-item" data-tab="records">
+    <span class="nav-icon">📋</span>记录
+  </button>
+</nav>
+
+<!-- Timer Setup Modal -->
+<div class="modal-overlay" id="modal-timer-setup">
+  <div class="modal-sheet">
+    <h3>开始计时</h3>
+    <div class="pick-subject" id="timer-setup-subject"></div>
+    <div class="duration-presets" id="duration-presets"></div>
+    <div class="custom-dur">
+      <span style="font-size:13px;color:var(--text-secondary);">自定义</span>
+      <input type="number" id="custom-duration" value="120" min="1" max="480" inputmode="numeric">
+      <span style="font-size:13px;color:var(--text-secondary);">分钟</span>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="confirmStartTimer()">▶ 开始计时</button>
+    <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeModal('modal-timer-setup')">取消</button>
+  </div>
+</div>
+
+<!-- Manual Record Modal -->
+<div class="modal-overlay" id="modal-manual">
+  <div class="modal-sheet">
+    <h3>➕ 补录学习记录</h3>
+    <div class="form-group">
+      <label>模块</label>
+      <select id="man-module" onchange="updateManualSubjects()">
+        <option value="行测">行测</option>
+        <option value="申论">申论</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>科目</label>
+      <select id="man-subject"></select>
+    </div>
+    <div class="form-group">
+      <label>日期</label>
+      <input type="date" id="man-date">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>开始时间</label>
+        <input type="time" id="man-start">
+      </div>
+      <div class="form-group">
+        <label>时长（分钟）</label>
+        <input type="number" id="man-duration" value="45" min="1" max="480" inputmode="numeric">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="saveManualRecord()">💾 保存记录</button>
+    <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeModal('modal-manual')">取消</button>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="modal-export">
+  <div class="modal-sheet">
+    <h3>📤 导出学习记录</h3>
+    <div class="export-options">
+      <button class="export-btn" onclick="exportData('csv')">
+        <span class="exp-icon">📄</span>导出为 CSV（Excel 可打开）
+      </button>
+      <button class="export-btn" onclick="exportData('json')">
+        <span class="exp-icon">📦</span>导出为 JSON（备份/恢复用）
+      </button>
+    </div>
+    <button class="btn btn-outline btn-full" style="margin-top:12px;" onclick="closeModal('modal-export')">取消</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== DATA MODEL ==========
+const MODULES = {
+  '行测': ['政治理论','言语理解','判断推理','数量关系','资料分析'],
+  '申论': ['小题','大作文']
+};
+const SUBJECT_ICONS = {
+  '政治理论':'🏛️','言语理解':'💬','判断推理':'🧩','数量关系':'🔢','资料分析':'📊','小题':'📝','大作文':'✍️'
+};
+const SUBJECT_COLORS = [
+  '#6d9e6a','#7eab7b','#90b98c','#a2c69e','#b4d3b0','#6b8fbb','#82a6cf'
+];
+const SUBJECT_COLOR_MAP = {};
+['政治理论','言语理解','判断推理','数量关系','资料分析','小题','大作文'].forEach((s,i)=>{
+  SUBJECT_COLOR_MAP[s]=SUBJECT_COLORS[i];
+});
+
+const STORAGE_KEY = 'gongkao_records';
+const SETTINGS_KEY = 'gongkao_settings';
+const TIMER_KEY = 'gongkao_active_timer';
+
+let records = [];
+let activeTimer = null; // {subject, module, startTime, duration, endTime, intervalId}
+let charts = {};
+let currentPeriod = '7';
+
+// ========== STORAGE ==========
+function loadRecords(){
+  try{records=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch(e){records=[];}
+}
+function saveRecords(){localStorage.setItem(STORAGE_KEY,JSON.stringify(records));}
+function loadSettings(){
+  try{return JSON.parse(localStorage.getItem(SETTINGS_KEY))||{defaultDuration:45};}catch(e){return{defaultDuration:45};}
+}
+function saveSettings(s){localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));}
+function loadActiveTimer(){
+  try{
+    const t=JSON.parse(localStorage.getItem(TIMER_KEY));
+    if(!t)return null;
+    const now=Date.now();
+    if(now>=t.endTime){
+      // Timer should have completed - auto save record
+      addRecordSilent(t.subject,t.module,new Date(t.startTime),t.duration);
+      localStorage.removeItem(TIMER_KEY);
+      return null;
+    }
+    return t;
+  }catch(e){return null;}
+}
+function saveActiveTimer(){localStorage.setItem(TIMER_KEY,JSON.stringify(activeTimer));}
+
+function addRecordSilent(subject,module,startDate,durationMinutes){
+  const d=startDate;
+  const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const timeStr=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  records.push({
+    id:Date.now(),
+    module,subject,date:dateStr,startTime:timeStr,
+    duration:Math.round(durationMinutes),
+    type:'timer'
+  });
+  saveRecords();
+}
+
+// ========== TOAST ==========
+let toastTimer;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),1800);
+}
+
+// ========== MODALS ==========
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+let pendingTimerSubject=null,pendingTimerModule=null,selectedDuration=null;
+
+function openTimerSetup(subject,module){
+  pendingTimerSubject=subject;
+  pendingTimerModule=module;
+  selectedDuration=null;
+  document.getElementById('timer-setup-subject').innerHTML=
+    `${SUBJECT_ICONS[subject]} ${subject} <span style="font-size:12px;color:var(--text-secondary);">— ${module}</span>`;
+  // Reset preset buttons
+  document.querySelectorAll('#duration-presets .dur-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('custom-duration').value='';
+  openModal('modal-timer-setup');
+}
+
+function openManualModal(){
+  updateManualSubjects();
+  const now=new Date();
+  document.getElementById('man-date').value=now.toISOString().split('T')[0];
+  document.getElementById('man-start').value=
+    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('man-duration').value='45';
+  openModal('modal-manual');
+}
+
+function openExportModal(){openModal('modal-export');}
+
+function updateManualSubjects(){
+  const mod=document.getElementById('man-module').value;
+  const sel=document.getElementById('man-subject');
+  sel.innerHTML=MODULES[mod].map(s=>`<option value="${s}">${SUBJECT_ICONS[s]} ${s}</option>`).join('');
+}
+
+// ========== TIMER ==========
+function confirmStartTimer(){
+  let dur=selectedDuration;
+  if(!dur){
+    const custom=parseInt(document.getElementById('custom-duration').value);
+    if(!custom||custom<1||custom>480){showToast('请选择或输入有效的时长（1-480分钟）');return;}
+    dur=custom;
+  }
+  closeModal('modal-timer-setup');
+  startTimer(pendingTimerSubject,pendingTimerModule,dur);
+}
+
+function startTimer(subject,module,durationMinutes){
+  // Stop existing timer if any
+  if(activeTimer){
+    clearInterval(activeTimer.intervalId);
+    showToast('已停止上一个计时');
+  }
+  const now=Date.now();
+  activeTimer={
+    subject,module,
+    startTime:now,
+    duration:durationMinutes,
+    endTime:now+durationMinutes*60000,
+    intervalId:null
+  };
+  activeTimer.intervalId=setInterval(tickTimer,1000);
+  saveActiveTimer();
+  renderActiveTimerBar();
+  renderSubjectCards();
+  requestNotificationPermission();
+  showToast(`开始 ${subject} · ${durationMinutes} 分钟`);
+}
+
+function tickTimer(){
+  if(!activeTimer)return;
+  const remaining=Math.max(0,activeTimer.endTime-Date.now());
+  const el=document.getElementById('active-timer-bar');
+  const countdownEl=el.querySelector('.timer-countdown');
+  const mins=Math.floor(remaining/60000);
+  const secs=Math.floor((remaining%60000)/1000);
+  countdownEl.textContent=`${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+
+  if(remaining<=0){
+    completeTimer();
+  }
+}
+
+function completeTimer(){
+  if(!activeTimer)return;
+  clearInterval(activeTimer.intervalId);
+  const s=activeTimer.subject;
+  const m=activeTimer.module;
+  const dur=activeTimer.duration;
+  const start=new Date(activeTimer.startTime);
+  addRecordSilent(s,m,start,dur);
+  activeTimer=null;
+  localStorage.removeItem(TIMER_KEY);
+  renderActiveTimerBar();
+  renderSubjectCards();
+  renderRecordsList();
+  updateStatsView();
+  showToast(`✅ ${s} 学习完成！${dur} 分钟已记录`);
+  // Try notification
+  try{
+    if(Notification.permission==='granted'){
+      new Notification('学习时间到！',{
+        body:`${s} 的 ${dur} 分钟学习已自动记录`,
+        icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📚</text></svg>',
+        vibrate:[200,100,200]
+      });
+    }
+  }catch(e){}
+  // Audio feedback
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.frequency.value=800;gain.gain.value=0.15;
+    osc.start();osc.stop(ctx.currentTime+0.15);
+    setTimeout(()=>{
+      const o2=ctx.createOscillator();o2.connect(gain);
+      o2.frequency.value=1000;o2.start();o2.stop(ctx.currentTime+0.2);
+    },200);
+  }catch(e){}
+}
+
+function stopTimer(){
+  if(!activeTimer)return;
+  clearInterval(activeTimer.intervalId);
+  const elapsed=Math.round((Date.now()-activeTimer.startTime)/60000);
+  if(elapsed>=1){
+    addRecordSilent(activeTimer.subject,activeTimer.module,new Date(activeTimer.startTime),elapsed);
+    showToast(`⏹ 已停止 · 实际学习 ${elapsed} 分钟已记录`);
+  }else{
+    showToast('⏹ 已停止（不足1分钟，未记录）');
+  }
+  activeTimer=null;
+  localStorage.removeItem(TIMER_KEY);
+  renderActiveTimerBar();
+  renderSubjectCards();
+  renderRecordsList();
+  updateStatsView();
+}
+
+function requestNotificationPermission(){
+  if('Notification' in window && Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+}
+
+// ========== RENDER ==========
+function renderActiveTimerBar(){
+  const bar=document.getElementById('active-timer-bar');
+  if(!activeTimer){
+    bar.style.display='none';
+    return;
+  }
+  bar.style.display='flex';
+  bar.querySelector('.timer-subject').textContent=
+    `${SUBJECT_ICONS[activeTimer.subject]} ${activeTimer.subject}`;
+  const remaining=Math.max(0,activeTimer.endTime-Date.now());
+  const mins=Math.floor(remaining/60000);
+  const secs=Math.floor((remaining%60000)/1000);
+  bar.querySelector('.timer-countdown').textContent=
+    `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+}
+
+function renderSubjectCards(){
+  const xcGrid=document.getElementById('grid-xingce');
+  const slGrid=document.getElementById('grid-shenlun');
+
+  // Calculate last study time and total duration for each subject
+  const subjectStats={};
+  MODULES['行测'].concat(MODULES['申论']).forEach(s=>{
+    subjectStats[s]={lastDate:null,totalMin:0};
+  });
+  records.forEach(r=>{
+    if(subjectStats[r.subject]){
+      subjectStats[r.subject].totalMin+=r.duration;
+      if(!subjectStats[r.subject].lastDate||r.date>subjectStats[r.subject].lastDate){
+        subjectStats[r.subject].lastDate=r.date;
+      }
+    }
+  });
+
+  function makeCard(subject,module){
+    const st=subjectStats[subject];
+    let lastStr='尚未学习';
+    if(st.lastDate){
+      const d=new Date(st.lastDate);
+      const now=new Date();
+      const diff=Math.floor((now-d)/86400000);
+      if(diff===0)lastStr='今天学过';
+      else if(diff===1)lastStr='昨天学过';
+      else lastStr=`上次: ${st.lastDate.slice(5)}`;
+    }
+    const isRunning=activeTimer&&activeTimer.subject===subject;
+    return `<div class="subject-card${isRunning?' running':''}" onclick="openTimerSetup('${subject}','${module}')">
+      <span class="card-icon">${SUBJECT_ICONS[subject]}</span>
+      <div class="card-name">${subject}</div>
+      <div class="card-last">${lastStr} · 共${Math.floor(st.totalMin/60)}h${st.totalMin%60}m</div>
+    </div>`;
+  }
+
+  xcGrid.innerHTML=MODULES['行测'].map(s=>makeCard(s,'行测')).join('');
+  slGrid.innerHTML=MODULES['申论'].map(s=>makeCard(s,'申论')).join('');
+}
+
+function renderRecordsList(){
+  const container=document.getElementById('records-list');
+  const empty=document.getElementById('records-empty');
+
+  if(records.length===0){
+    container.innerHTML='';
+    empty.style.display='block';
+    return;
+  }
+  empty.style.display='none';
+
+  // Group by date, sorted desc
+  const sorted=[...records].sort((a,b)=>{
+    if(a.date!==b.date)return b.date.localeCompare(a.date);
+    return b.id-a.id;
+  });
+  const groups={};
+  sorted.forEach(r=>{
+    if(!groups[r.date])groups[r.date]=[];
+    groups[r.date].push(r);
+  });
+
+  let html='';
+  for(const[date,items]of Object.entries(groups)){
+    const today=new Date().toISOString().split('T')[0];
+    const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+    let label=date;
+    if(date===today)label='今天';
+    else if(date===yesterday)label='昨天';
+
+    html+=`<div class="date-group"><div class="date-label">${label}</div>`;
+    items.forEach(r=>{
+      const durH=Math.floor(r.duration/60);
+      const durM=r.duration%60;
+      const durStr=durH>0?`${durH}h${durM}m`:`${durM}分钟`;
+      html+=`<div class="record-item">
+        <span class="rec-icon">${SUBJECT_ICONS[r.subject]}</span>
+        <div class="rec-info">
+          <div class="rec-subject">${r.subject} <span style="font-size:10px;color:var(--text-secondary);">${r.module}</span></div>
+          <div class="rec-meta">${r.startTime} · ${r.type==='manual'?'手动记录':'计时器'}</div>
+        </div>
+        <span class="rec-duration">${durStr}</span>
+        <button class="rec-del" onclick="deleteRecord(${r.id})" title="删除">🗑</button>
+      </div>`;
+    });
+    html+='</div>';
+  }
+  container.innerHTML=html;
+}
+
+function deleteRecord(id){
+  if(!confirm('确定删除这条记录吗？'))return;
+  records=records.filter(r=>r.id!==id);
+  saveRecords();
+  renderRecordsList();
+  renderSubjectCards();
+  updateStatsView();
+  showToast('记录已删除');
+}
+
+// ========== STATS ==========
+function getRecordsInPeriod(period){
+  const now=new Date();
+  let startDate;
+  if(period==='7'){
+    startDate=new Date(now);startDate.setDate(startDate.getDate()-6);
+  }else if(period==='month'){
+    startDate=new Date(now.getFullYear(),now.getMonth(),1);
+  }else{
+    startDate=new Date(now);startDate.setDate(startDate.getDate()-29);
+  }
+  const startStr=startDate.toISOString().split('T')[0];
+  return records.filter(r=>r.date>=startStr);
+}
+
+function updateStatsView(){
+  if(document.getElementById('view-stats').classList.contains('active')){
+    renderStats();
+  }
+}
+
+function renderStats(){
+  const filtered=getRecordsInPeriod(currentPeriod);
+  const empty=document.getElementById('stats-empty');
+
+  if(filtered.length===0){
+    empty.style.display='block';
+    document.querySelectorAll('.chart-section').forEach(el=>el.style.display='none');
+    document.getElementById('summary-bar').innerHTML='';
+    destroyCharts();
+    return;
+  }
+  empty.style.display='none';
+  document.querySelectorAll('.chart-section').forEach(el=>el.style.display='');
+
+  // Summary
+  let xcTotal=0,slTotal=0;
+  const subjectTotals={};
+  MODULES['行测'].concat(MODULES['申论']).forEach(s=>{subjectTotals[s]=0;});
+  filtered.forEach(r=>{
+    subjectTotals[r.subject]=(subjectTotals[r.subject]||0)+r.duration;
+    if(r.module==='行测')xcTotal+=r.duration;
+    else slTotal+=r.duration;
+  });
+
+  const xcH=Math.floor(xcTotal/60),xcM=xcTotal%60;
+  const slH=Math.floor(slTotal/60),slM=slTotal%60;
+  document.getElementById('summary-bar').innerHTML=`
+    <div class="summary-item xc"><div class="sum-val">${xcH}h${xcM}m</div><div class="sum-label">行测</div></div>
+    <div class="summary-item sl"><div class="sum-val">${slH}h${slM}m</div><div class="sum-label">申论</div></div>
+  `;
+
+  // Pie: subject distribution
+  renderSubjectPie(subjectTotals);
+  // Pie: module
+  renderModulePie(xcTotal,slTotal);
+  // Trend
+  renderTrendChart(filtered);
+}
+
+function destroyCharts(){
+  Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});
+  charts={};
+}
+
+function renderSubjectPie(totals){
+  if(charts.subject)charts.subject.destroy();
+  const ctx=document.getElementById('chart-subject').getContext('2d');
+  const labels=[],data=[],colors=[];
+  MODULES['行测'].concat(MODULES['申论']).forEach(s=>{
+    if(totals[s]>0){
+      labels.push(s);
+      data.push(totals[s]);
+      colors.push(SUBJECT_COLOR_MAP[s]);
+    }
+  });
+  if(labels.length===0)return;
+  charts.subject=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{
+        legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:12}}}
+      }
+    }
+  });
+}
+
+function renderModulePie(xc,sl){
+  if(charts.module)charts.module.destroy();
+  const ctx=document.getElementById('chart-module').getContext('2d');
+  if(xc===0&&sl===0)return;
+  charts.module=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['行测','申论'],
+      datasets:[{data:[xc,sl],backgroundColor:['#6d9e6a','#5b8cb8'],borderWidth:2,borderColor:'#fff'}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{
+        legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyleWidth:8,font:{size:12}}}
+      }
+    }
+  });
+}
+
+function renderTrendChart(filtered){
+  if(charts.trend)charts.trend.destroy();
+  const ctx=document.getElementById('chart-trend').getContext('2d');
+
+  // Group by date
+  const dailyTotals={};
+  filtered.forEach(r=>{dailyTotals[r.date]=(dailyTotals[r.date]||0)+r.duration;});
+
+  // Generate all dates in range
+  let startDate,endDate;
+  const now=new Date();
+  if(currentPeriod==='7'){
+    startDate=new Date(now);startDate.setDate(startDate.getDate()-6);
+    endDate=now;
+  }else if(currentPeriod==='month'){
+    startDate=new Date(now.getFullYear(),now.getMonth(),1);
+    endDate=now;
+  }else{
+    startDate=new Date(now);startDate.setDate(startDate.getDate()-29);
+    endDate=now;
+  }
+
+  const labels=[],data=[];
+  const d=new Date(startDate);
+  while(d<=endDate){
+    const ds=d.toISOString().split('T')[0];
+    labels.push(`${d.getMonth()+1}/${d.getDate()}`);
+    data.push(Math.round((dailyTotals[ds]||0)/60*10)/10); // Convert to hours with 1 decimal
+    d.setDate(d.getDate()+1);
+  }
+
+  const barColor=labels.length>14?'rgba(109,158,106,0.7)':'rgba(109,158,106,0.6)';
+  charts.trend=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'学习时长 (小时)',
+        data,
+        backgroundColor:data.map((_,i)=>{
+          const colors=['rgba(109,158,106,0.45)','rgba(109,158,106,0.55)','rgba(109,158,106,0.65)','rgba(109,158,106,0.75)','rgba(109,158,106,0.85)'];
+          return colors[Math.min(i,4)];
+        }),
+        borderRadius:6,
+        borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{
+        legend:{display:false}
+      },
+      scales:{
+        y:{beginAtZero:true,ticks:{font:{size:10}},title:{display:true,text:'小时',font:{size:10}}},
+        x:{ticks:{font:{size:labels.length>14?8:10},maxRotation:labels.length>14?45:0}}
+      }
+    }
+  });
+}
+
+// ========== EXPORT ==========
+function exportData(format){
+  if(records.length===0){showToast('没有可导出的记录');closeModal('modal-export');return;}
+  if(format==='csv'){
+    const header='日期,模块,科目,开始时间,时长(分钟),记录方式\n';
+    const rows=records.map(r=>`${r.date},${r.module},${r.subject},${r.startTime},${r.duration},${r.type==='manual'?'手动':'计时'}`).join('\n');
+    const BOM='﻿';
+    downloadFile(BOM+header+rows,'公考学习记录.csv','text/csv;charset=utf-8');
+  }else{
+    const data=JSON.stringify(records,null,2);
+    downloadFile(data,'公考学习记录_备份.json','application/json');
+  }
+  closeModal('modal-export');
+  showToast('导出成功！');
+}
+
+function downloadFile(content,filename,mimeType){
+  const blob=new Blob([content],{type:mimeType});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ========== TAB NAVIGATION ==========
+function switchTab(tab){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+  if(tab==='stats'){
+    currentPeriod='7';
+    document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-period="7"]').classList.add('active');
+    renderStats();
+  }
+  if(tab==='records')renderRecordsList();
+  if(tab==='timer')renderSubjectCards();
+}
+
+// ========== MANUAL RECORD ==========
+function saveManualRecord(){
+  const module=document.getElementById('man-module').value;
+  const subject=document.getElementById('man-subject').value;
+  const date=document.getElementById('man-date').value;
+  const start=document.getElementById('man-start').value;
+  const dur=parseInt(document.getElementById('man-duration').value);
+
+  if(!date||!start||!dur||dur<1){showToast('请填写完整的记录信息');return;}
+
+  records.push({
+    id:Date.now(),
+    module,subject,date,startTime:start,
+    duration:dur,type:'manual'
+  });
+  saveRecords();
+  closeModal('modal-manual');
+  renderSubjectCards();
+  renderRecordsList();
+  updateStatsView();
+  showToast('✅ 记录已保存');
+}
+
+// ========== PWA ==========
+function setupPWA(){
+  // Create manifest as blob URL
+  const manifest={
+    name:'公考学习计时',
+    short_name:'公考计时',
+    description:'公务员备考学习时长记录与统计',
+    start_url:location.href,
+    display:'standalone',
+    orientation:'portrait',
+    background_color:'#f3f7f1',
+    theme_color:'#6d9e6a',
+    icons:[{
+      src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#6d9e6a"/><text x="96" y="120" text-anchor="middle" font-size="100">📚</text></svg>'),
+      sizes:'192x192',type:'image/svg+xml'
+    }]
+  };
+  const manifestBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const manifestURL=URL.createObjectURL(manifestBlob);
+  const link=document.createElement('link');
+  link.rel='manifest';link.href=manifestURL;
+  document.head.appendChild(link);
+
+  // Try registering service worker
+  if('serviceWorker' in navigator){
+    const swCode=`
+self.addEventListener('install',e=>{self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
+self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});
+`;
+    const swBlob=new Blob([swCode],{type:'application/javascript'});
+    const swURL=URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL).catch(()=>{});
+  }
+}
+
+// ========== INIT ==========
+function init(){
+  loadRecords();
+  const saved=loadActiveTimer();
+  if(saved){
+    activeTimer=saved;
+    activeTimer.intervalId=setInterval(tickTimer,1000);
+  }
+
+  // Duration preset buttons
+  const presets=[15,25,45,60,90];
+  document.getElementById('duration-presets').innerHTML=presets.map(d=>
+    `<button class="dur-btn" onclick="selectDuration(${d},this)">${d} 分钟</button>`
+  ).join('');
+
+  // Setup event listeners
+  document.querySelectorAll('.nav-item').forEach(btn=>{
+    btn.addEventListener('click',()=>switchTab(btn.dataset.tab));
+  });
+  document.querySelectorAll('.period-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      currentPeriod=this.dataset.period;
+      renderStats();
+    });
+  });
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+    overlay.addEventListener('click',function(e){
+      if(e.target===this)this.classList.remove('show');
+    });
+  });
+
+  // Initial render
+  renderActiveTimerBar();
+  renderSubjectCards();
+  setupPWA();
+  requestNotificationPermission();
+}
+
+function selectDuration(dur,btn){
+  selectedDuration=dur;
+  document.querySelectorAll('#duration-presets .dur-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('custom-duration').value='';
+}
+
+// Global functions
+window.openTimerSetup=openTimerSetup;
+window.openManualModal=openManualModal;
+window.openExportModal=openExportModal;
+window.closeModal=closeModal;
+window.confirmStartTimer=confirmStartTimer;
+window.updateManualSubjects=updateManualSubjects;
+window.saveManualRecord=saveManualRecord;
+window.stopTimer=stopTimer;
+window.deleteRecord=deleteRecord;
+window.exportData=exportData;
+window.selectDuration=selectDuration;
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
